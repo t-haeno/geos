@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="build" name="" basedir="../">
+
+	<tstamp>
+        <format property="now" pattern="yyyy_MM_dd" />
+    </tstamp>
+    <tstamp>
+        <format property="ts" pattern="yyyyMMdd-HHmmss-z"/>
+    </tstamp>
+	<property name="workDir" value="${basedir}"/>
+
+    <!--"ビルドファイル名+.properties"プロパティファイルをロード-->
+	<property name="propertiyfile" value="${ant.file}.properties"/>
+	<loadproperties srcfile="${propertiyfile}" ></loadproperties>
+
+	<property name="version" value="1.0.1"/>
+	<property name="jar.output" value="app.jar"/>
+	<property name="encode" value="MS932"></property>
+	<property name="debug" value="false"></property>
+	<property name="recreateOutputDir" value="true"></property>
+	<property name="classLoaderIndex" value="false"></property>
+	<property name="jarUpdate" value="false"></property>
+	<property name="exclude_sign" value="**/*.scc,**/*.db" />
+
+	<!--入力-->
+	<property name="dir.src" value="${workDir}/src" />
+	<property name="dir.lib" value="${workDir}/lib" />
+
+	<!--出力先-->
+	<property name="dir.output" value="binaries/${version}/" />
+	<property name="dir.output.lib" value="${dir.output}lib/" />
+	<property name="dir.output.doc" value="${dir.output}doc/" />
+	<property name="dir.classes" value="${workDir}/bin/" />
+
+	<!--参照-->
+	<pathconvert pathsep=" " property="lib" >
+		<path>
+			<pathelement location="${dir.lib}"/>
+		</path>
+	</pathconvert>
+	<fileset id="libs" dir="${dir.lib}" includes="*" />
+
+	<target name="make_buildDir" if="recreateOutputDir">
+		<mkdir dir="${dir.output}"/>
+		<delete dir="${dir.output.lib}"/>
+		<mkdir dir="${dir.output.lib}"/>
+		<delete dir="${dir.output}" excludes="*.bat *.txt">
+		</delete>
+		<!--<delete dir="${dir.classes}"/>
+		<mkdir dir="${dir.classes}"/>
+		-->
+	</target>
+
+	<target name="build" depends="make_buildDir"
+		description="">
+		<!--フォルダの用意-->
+		<mkdir dir="${dir.classes}" />
+
+<!--
+		<javac srcdir="${dir.src}" destdir="${dir.classes}"
+			debug="${debug}" encoding="${encode}" target="1.7">
+		</javac>
+-->
+		<jar destfile="${dir.output}${jar.output}" basedir="${dir.classes}"
+			update="${jarUpdate}" index="${classLoaderIndex}">
+			<manifest>
+				<attribute name="Implementation-Vendor"  value="${vendor}"/>
+				<attribute name="Implementation-Version" value="${version}"/>
+				<attribute name="Build-Id"
+					value="${ts} (${user.name} [${os.name} ${os.version} ${os.arch}])"/>
+				<!--
+				<attribute name="Java-Name" value="${java.runtime.name}" />
+				<attribute name="Java-Version" value="${java.version}" />
+				-->
+            </manifest>
+		</jar>
+		<copy todir="${dir.output.lib}">
+			<fileset refid="libs"/>
+		</copy>
+		<delete dir="${dir.classes}" />
+	</target>
+
+
+</project>
